@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 32: Articles and Proper Adjectives Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        .question-card {
+            transition: all 0.3s ease;
+        }
+
+        .option-label {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .option-input:checked + .option-label {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .correct {
+            background-color: #10b981 !important;
+            color: white !important;
+        }
+
+        .incorrect {
+            background-color: #ef4444 !important;
+            color: white !important;
+        }
+
+        #progress-bar {
+            transition: width 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <header class="bg-white rounded-xl shadow-md p-6 mb-8 text-center">
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">Lesson 32 Quiz</h1>
+            <p class="text-gray-600 italic">Articles and Proper Adjectives</p>
+            
+            <div class="mt-6 bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-blue-500 h-full w-0"></div>
+            </div>
+            <p id="progress-text" class="text-sm text-gray-500 mt-2 text-right">Question 1 of 10</p>
+        </header>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container">
+            <div id="question-box" class="bg-white rounded-xl shadow-lg p-8 question-card">
+                <h2 id="question-text" class="text-xl font-semibold mb-6">Loading question...</h2>
+                <div id="options-container" class="space-y-3">
+                    <!-- Options injected here -->
+                </div>
+                <button id="next-btn" class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg hidden">
+                    Next Question
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden bg-white rounded-xl shadow-lg p-8 text-center">
+            <h2 class="text-4xl font-bold mb-4">Quiz Complete!</h2>
+            <div class="text-6xl font-bold text-blue-600 mb-4" id="final-score">0/10</div>
+            <p id="score-message" class="text-xl text-gray-700 mb-8"></p>
+            <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg">
+                Try Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Choose the correct indefinite article: '___ invigorating hike'",
+                options: ["a", "an"],
+                correct: 1,
+                explanation: "Use 'an' before words beginning with a vowel sound."
+            },
+            {
+                question: "Choose the correct indefinite article: '___ union representative'",
+                options: ["a", "an"],
+                correct: 0,
+                explanation: "'Union' starts with a consonant sound ('yoo'), so use 'a'."
+            },
+            {
+                question: "Choose the correct indefinite article: '___ honest mistake'",
+                options: ["a", "an"],
+                correct: 1,
+                explanation: "'Honest' starts with a vowel sound ('o'), so use 'an'."
+            },
+            {
+                question: "Choose the correct indefinite article: '___ world atlas'",
+                options: ["a", "an"],
+                correct: 0,
+                explanation: "'World' starts with a consonant sound."
+            },
+            {
+                question: "What is the proper adjective for the country 'Italy'?",
+                options: ["Italyish", "Italic", "Italian", "Italese"],
+                correct: 2,
+                explanation: "The proper adjective for Italy is Italian."
+            },
+            {
+                question: "Rewrite the phrase using a proper adjective: 'a flag from Lebanon'",
+                options: ["a Lebanon flag", "the Lebanonish flag", "the Lebanese flag", "a Lebanonian flag"],
+                correct: 2,
+                explanation: "Proper adjectives for Lebanon use the '-ese' ending: Lebanese."
+            },
+            {
+                question: "Which proper adjective is capitalized correctly?",
+                options: ["the french bread", "the French bread"],
+                correct: 1,
+                explanation: "Proper adjectives always begin with a capital letter."
+            },
+            {
+                question: "Convert to a proper adjective phrase: 'a skier from Austria'",
+                options: ["a Austrian skier", "an Austrian skier"],
+                correct: 1,
+                explanation: "When 'Austria' becomes 'Austrian', the article must change from 'a' to 'an' to match the vowel sound."
+            },
+            {
+                question: "Which of these is a 'Definite Article'?",
+                options: ["a", "an", "the", "some"],
+                correct: 2,
+                explanation: "'The' is the definite article because it identifies a specific item."
+            },
+            {
+                question: "What is the proper adjective for 'Mars'?",
+                options: ["Marsian", "Martian", "Marsese", "Marish"],
+                correct: 1,
+                explanation: "Martian is the proper adjective form."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultScreen = document.getElementById('result-screen');
+        const finalScore = document.getElementById('final-score');
+        const scoreMessage = document.getElementById('score-message');
+
+        function loadQuestion() {
+            answered = false;
+            const data = quizData[currentQuestion];
+            questionText.innerText = data.question;
+            optionsContainer.innerHTML = '';
+            nextBtn.classList.add('hidden');
+
+            // Update Progress
+            const progressPercent = ((currentQuestion + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.innerText = `Question ${currentQuestion + 1} of ${quizData.length}`;
+
+            data.options.forEach((option, index) => {
+                const btn = document.createElement('div');
+                btn.className = "option-label w-full p-4 border-2 border-gray-200 rounded-lg font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50";
+                btn.innerText = option;
+                btn.onclick = () => handleSelect(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleSelect(index, element) {
+            if (answered) return;
+            answered = true;
+
+            const data = quizData[currentQuestion];
+            const allOptions = optionsContainer.children;
+
+            if (index === data.correct) {
+                element.classList.add('correct');
+                score++;
+            } else {
+                element.classList.add('incorrect');
+                allOptions[data.correct].classList.add('correct');
+            }
+
+            // Create explanation element
+            const exp = document.createElement('p');
+            exp.className = "mt-4 text-sm italic text-gray-600";
+            exp.innerText = data.explanation;
+            optionsContainer.appendChild(exp);
+
+            nextBtn.classList.remove('hidden');
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.innerText = "Show Results";
+            }
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            document.querySelector('header').classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            finalScore.innerText = `${score} / ${quizData.length}`;
+            
+            if (score === quizData.length) {
+                scoreMessage.innerText = "Excellent! You have mastered Lesson 32!";
+            } else if (score >= 7) {
+                scoreMessage.innerText = "Great job! You have a strong grasp of articles and adjectives.";
+            } else {
+                scoreMessage.innerText = "Good effort! Review the rules for vowel sounds and proper noun endings.";
+            }
+        }
+
+        // Initialize
+        loadQuestion();
+    </script>
+</body>
+</html>
